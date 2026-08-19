@@ -1,0 +1,68 @@
+<!-- Plugin Configuration File. Read more: https://plugins.jetbrains.com/docs/intellij/plugin-configuration-file.html -->
+<idea-plugin>
+    <id>dev.gaphunter.sqlconcatenationcompanion</id>
+    <name>SQL String Concatenation Companion</name>
+    <vendor>Gap Hunter Labs</vendor>
+    <description><![CDATA[
+        <p>Flags SQL queries built by <b>unparameterized string
+        concatenation or interpolation</b> -- the classic SQL-injection
+        shape -- in Java, Kotlin, and Python, and offers a real quick-fix
+        toward parameterization.</p>
+        <p><b>What triggers it</b> (both conditions required):</p>
+        <ul>
+            <li>A string literal that looks like the start of a real SQL
+            statement (<code>SELECT</code>/<code>INSERT</code>/
+            <code>UPDATE</code>/<code>DELETE</code>/<code>MERGE</code>/
+            <code>WITH</code>), combined via <code>+</code> concatenation
+            or string-template/f-string interpolation with a
+            <b>non-constant operand</b> -- e.g.
+            <code>"SELECT * FROM users WHERE id = " + userId</code>
+            (Java/Kotlin), <code>"SELECT * FROM users WHERE id = $userId"</code>
+            (Kotlin template), <code>f"SELECT * FROM users WHERE id = {user_id}"</code>
+            (Python), or <code>"... WHERE id = %s" % user_id</code>.</li>
+            <li>The resulting string is used near a call that looks like
+            it executes SQL: <code>Statement.executeQuery/executeUpdate/execute</code>,
+            <code>cursor.execute/executemany</code> (Python DB-API), and
+            similar conventions (<code>.query(...)</code>,
+            <code>.rawQuery(...)</code>).</li>
+        </ul>
+        <p><b>What does NOT trigger it</b> (the anti-false-positive
+        design, see README for the full worked list):</p>
+        <ul>
+            <li>Two constant string literals concatenated
+            (<code>"SELECT * FROM " + "users"</code>) -- just code
+            formatting, no variable involved.</li>
+            <li>A SQL-keyword-shaped string with no nearby execution
+            call -- a log message, a comment, a test fixture that's
+            never actually run.</li>
+            <li>A value already parameterized correctly (<code>?</code>
+            placeholders with <code>PreparedStatement.setX(...)</code>,
+            or a DB-API parameter tuple like
+            <code>cursor.execute(query, (param,))</code>).</li>
+        </ul>
+        <p><b>Quick-fix, honest scope:</b> replaces the interpolated
+        value with a <code>?</code> placeholder and adds a
+        <code>TODO(sql-concat)</code> comment naming the variable that
+        still needs to be bound as a real parameter
+        (<code>.setString(1, ...)</code>/<code>cursor.execute(query,
+        (param,))</code>). It does <b>not</b> infer the value's real
+        type or its correct positional index across a multi-placeholder
+        query -- that's flagged honestly as future work, not silently
+        pretended to be handled.</p>
+        <p>Deliberately narrow (not a full SAST scanner like Qodana):
+        one specific pattern, near-zero configuration, tuned hard
+        against false positives.</p>
+        <p>Free. No license nags, no telemetry, no popups.</p>
+    ]]></description>
+
+    <depends>com.intellij.modules.platform</depends>
+
+    <extensions defaultExtensionNs="com.intellij">
+        <localInspection language=""
+            groupName="SQL String Concatenation Companion"
+            displayName="SQL query built by unparameterized string concatenation/interpolation"
+            enabledByDefault="true"
+            level="WARNING"
+            implementationClass="dev.gaphunter.sqlconcatenationcompanion.inspection.SqlConcatenationInspection"/>
+    </extensions>
+</idea-plugin>
