@@ -9,6 +9,7 @@ import com.intellij.psi.PsiElement
 import com.intellij.psi.PsiFile
 import dev.gaphunter.sqlconcatenationcompanion.detect.SqlConcatenationScanner
 import dev.gaphunter.sqlconcatenationcompanion.quickfix.ParameterizeSqlFix
+import dev.gaphunter.sqlconcatenationcompanion.review.ReviewPrompt
 
 /**
  * Flags a SQL query built by unparameterized string concatenation/
@@ -67,6 +68,12 @@ class SqlConcatenationInspection : LocalInspectionTool() {
                 isOnTheFly,
                 ParameterizeSqlFix(match.interpolatedName),
             )
+
+            val path = file.virtualFile?.path
+            if (path != null) {
+                val lineNumber = file.viewProvider.document?.getLineNumber(match.startOffset) ?: -1
+                ReviewPrompt.recordHit(file.project, "$path:$lineNumber")
+            }
         }
 
         return if (problems.isEmpty()) null else problems.toTypedArray()
