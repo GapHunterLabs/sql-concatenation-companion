@@ -64,5 +64,6 @@
             enabledByDefault="true"
             level="WARNING"
             implementationClass="dev.gaphunter.sqlconcatenationcompanion.inspection.SqlConcatenationInspection"/>
+        <notificationGroup id="SQL String Concatenation Companion" displayType="BALLOON"/>
     </extensions>
 </idea-plugin>
