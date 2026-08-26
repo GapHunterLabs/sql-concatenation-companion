@@ -11,7 +11,7 @@
 - Review/star CTA: after 10 distinct real findings, a one-time
   notification asks whether to rate the plugin on Marketplace, with a
   permanent "Don't ask again" option. Standard mechanism used
-  catalog-wide since 2026-08-24 (`CONSTITUTION.md` §7.2), rolled out
+  catalog-wide since 2026-08-24, rolled out
   to this plugin now.
 
 ## [0.1.0]
