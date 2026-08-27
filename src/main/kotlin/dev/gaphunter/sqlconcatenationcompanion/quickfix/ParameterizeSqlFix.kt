@@ -16,9 +16,8 @@ import com.intellij.openapi.util.TextRange
  * type inference across Java/Kotlin/Python, correct positional index
  * when a query has more than one placeholder, choosing the right
  * `setX`/`cursor.execute` call shape per driver) is real, non-trivial
- * work explicitly out of this plugin's ~10-day v0.1 budget (see
- * `CONSTITUTION.md` §1 scope discipline and this plugin's README
- * "Quick-fix: honest scope").
+ * work explicitly out of this plugin's ~10-day v0.1 budget (see this
+ * plugin's README "Quick-fix: honest scope").
  *
  * What it actually does, always the same simple, safe transformation
  * regardless of language: **replace the interpolated variable inside the

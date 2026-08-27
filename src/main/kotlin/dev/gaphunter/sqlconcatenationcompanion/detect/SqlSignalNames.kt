@@ -4,9 +4,8 @@ package dev.gaphunter.sqlconcatenationcompanion.detect
  * The plugin's actual anti-false-positive design, documented here (not
  * just in the README) because it's the part most likely to need tuning
  * later -- same role as
- * `http-status-inline-companion`'s `HttpSignalNames` (see
- * `CONSTITUTION.md`'s brief for this plugin, which names that object
- * explicitly as the discipline to reuse).
+ * `http-status-inline-companion`'s `HttpSignalNames`, the discipline
+ * this plugin reuses explicitly.
  *
  * A candidate string (SQL-keyword-shaped, built via concatenation or
  * interpolation with a non-constant operand -- see
