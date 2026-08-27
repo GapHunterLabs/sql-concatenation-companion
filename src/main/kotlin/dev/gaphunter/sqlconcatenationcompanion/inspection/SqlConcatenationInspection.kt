@@ -82,8 +82,8 @@ class SqlConcatenationInspection : LocalInspectionTool() {
     /**
      * Resolves a leaf PSI element covering [startOffset] -- never a
      * composite node, same documented platform gotcha as
-     * `env-var-missing-companion` already handles (`SDK_GOTCHAS.md`
-     * §20): walks down to `firstChild` until a true leaf is reached.
+     * `env-var-missing-companion` already handles: walks down to
+     * `firstChild` until a true leaf is reached.
      */
     private fun leafElementAt(file: PsiFile, startOffset: Int): PsiElement? {
         if (startOffset < 0 || startOffset >= file.textLength) return null
