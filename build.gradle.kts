@@ -53,7 +53,7 @@ intellijPlatform {
 
     // Catch experimental/internal API usage locally, before Marketplace's
     // own verifier flags it post-upload. Never relax this list without a
-    // documented exception (see AUTOMATION_PLAYBOOK.md SS1.5).
+    // documented exception.
     pluginVerification {
         failureLevel = listOf(
             VerifyPluginTask.FailureLevel.COMPATIBILITY_PROBLEMS,
