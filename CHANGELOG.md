@@ -4,6 +4,17 @@
 
 ## [Unreleased]
 
+## [0.2.0]
+
+### Fixed
+
+- Now recognizes DDL leading keywords (`CREATE`/`ALTER`/`DROP`/
+  `TRUNCATE`), not just DML -- the detector's own doc comment already
+  claimed "DML/DDL" coverage, but the keyword list only ever had DML
+  keywords in it. A dynamically-built `DROP TABLE`/`CREATE TABLE`
+  (e.g. a multi-tenant app building a per-tenant table name) is just
+  as real an injection shape and was previously missed entirely.
+
 ## [0.1.1]
 
 ### Added
@@ -51,6 +62,7 @@
 - 100% static text analysis of files already open in the project -- no
   network call, no external process spawned.
 
-[Unreleased]: https://github.com/GapHunterLabs/sql-concatenation-companion/compare/0.1.1...HEAD
+[Unreleased]: https://github.com/GapHunterLabs/sql-concatenation-companion/compare/0.2.0...HEAD
+[0.2.0]: https://github.com/GapHunterLabs/sql-concatenation-companion/compare/0.1.1...0.2.0
 [0.1.1]: https://github.com/GapHunterLabs/sql-concatenation-companion/compare/0.1.0...0.1.1
 [0.1.0]: https://github.com/GapHunterLabs/sql-concatenation-companion/commits/0.1.0

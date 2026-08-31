@@ -26,6 +26,21 @@ class SqlConcatenationScannerTest {
     }
 
     @Test
+    fun `java plus concat building a dynamic DROP TABLE statement matches`() {
+        val text = """stmt.executeUpdate("DROP TABLE tenant_" + tenantId);"""
+        val matches = SqlConcatenationScanner.scan(text)
+        assertEquals(1, matches.size)
+        assertEquals("tenantId", matches.single().interpolatedName)
+    }
+
+    @Test
+    fun `java plus concat building a dynamic CREATE TABLE statement matches`() {
+        val text = """stmt.execute("CREATE TABLE schema_" + schemaName + " (id INT)");"""
+        val matches = SqlConcatenationScanner.scan(text)
+        assertEquals(1, matches.size)
+    }
+
+    @Test
     fun `two constant string literals concatenated does not match`() {
         val text = """stmt.executeQuery("SELECT * FROM " + "users");"""
         val matches = SqlConcatenationScanner.scan(text)
