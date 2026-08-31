@@ -12,7 +12,14 @@ package dev.gaphunter.sqlconcatenationcompanion.detect
 object SqlKeywordDetector {
 
     private val LEADING_KEYWORDS = listOf(
+        // DML
         "select", "insert", "update", "delete", "merge", "with",
+        // DDL -- a dynamically-built DROP/CREATE/ALTER/TRUNCATE is a
+        // real, dangerous injection shape too (e.g. a multi-tenant
+        // app building "DROP TABLE tenant_" + tenantId), and the class
+        // doc above already claimed "DML/DDL" coverage before this
+        // list actually had any DDL keyword in it.
+        "create", "alter", "drop", "truncate",
     )
 
     private val KEYWORD_PATTERN = Regex(

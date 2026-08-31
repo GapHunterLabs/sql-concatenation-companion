@@ -36,11 +36,11 @@ for the real code, same discipline already proven by
 `http-status-inline-companion`'s `HttpSignalNames`:**
 
 1. **Shape**: a string literal that looks like the start of a real SQL
-   statement (`SELECT`/`INSERT`/`UPDATE`/`DELETE`/`MERGE`/`WITH`,
-   matched at the start of the text — not "the word SELECT appears
-   anywhere"), combined via `+` concatenation or string-template/
-   f-string interpolation with an operand that is **not itself a
-   constant string literal**.
+   statement — DML (`SELECT`/`INSERT`/`UPDATE`/`DELETE`/`MERGE`/`WITH`)
+   or DDL (`CREATE`/`ALTER`/`DROP`/`TRUNCATE`) — matched at the start of
+   the text — not "the word SELECT appears anywhere"), combined via `+`
+   concatenation or string-template/f-string interpolation with an
+   operand that is **not itself a constant string literal**.
 2. **Context**: the resulting string is used within ~200 characters of
    a call that looks like it executes SQL — `Statement.executeQuery`/
    `executeUpdate`/`execute`, Python DB-API's `cursor.execute`/
@@ -53,6 +53,10 @@ for the real code, same discipline already proven by
 ```java
 // Java: + concatenation with a variable, executed
 stmt.executeQuery("SELECT * FROM users WHERE id = " + userId);
+
+// DDL is just as real a risk -- a multi-tenant app building a
+// per-tenant table/schema name this way is a classic injection shape.
+stmt.executeUpdate("DROP TABLE tenant_" + tenantId);
 ```
 
 ```kotlin
