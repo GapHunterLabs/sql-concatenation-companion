@@ -6,6 +6,7 @@ import com.intellij.openapi.editor.Document
 import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.TextRange
+import dev.gaphunter.sqlconcatenationcompanion.detect.SqlConcatenationScanner
 
 /**
  * **Honest scope, stated here and in the README, not oversold:** this
@@ -16,8 +17,8 @@ import com.intellij.openapi.util.TextRange
  * type inference across Java/Kotlin/Python, correct positional index
  * when a query has more than one placeholder, choosing the right
  * `setX`/`cursor.execute` call shape per driver) is real, non-trivial
- * work explicitly out of this plugin's ~10-day v0.1 budget (see this
- * plugin's README "Quick-fix: honest scope").
+ * work this fix doesn't attempt (see this plugin's README "The quick-fix
+ * -- honest scope").
  *
  * What it actually does, always the same simple, safe transformation
  * regardless of language: **replace the interpolated variable inside the
@@ -86,7 +87,12 @@ class ParameterizeSqlFix(private val variableName: String?) : LocalQuickFix {
      */
     private fun rewrite(document: Document, start: Int, end: Int) {
         val original = document.getText().substring(start, end)
-        val replaced = INTERPOLATION_MARKER.replace(original) { "?" }
+        // A constant (`$TABLE_USERS`) stays: it's usually a table or column
+        // name, which can't become a bound parameter.
+        val replaced = INTERPOLATION_MARKER.replace(original) { marker ->
+            val inner = marker.value.trimStart('$').removePrefix("{").removeSuffix("}").trim()
+            if (SqlConcatenationScanner.isConstantName(inner.substringAfterLast('.'))) marker.value else "?"
+        }
 
         if (replaced != original) {
             document.replaceString(start, end, replaced)

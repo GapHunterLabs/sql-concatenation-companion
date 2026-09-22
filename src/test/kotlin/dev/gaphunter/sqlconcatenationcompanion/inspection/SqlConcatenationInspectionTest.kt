@@ -94,6 +94,20 @@ class SqlConcatenationInspectionTest : BasePlatformTestCase() {
         assertTrue(highlights.any { it.description?.contains("SQL query") == true })
     }
 
+    fun `test the same code quoted in a markdown file produces no warning`() {
+        myFixture.configureByText(
+            "README.md",
+            """
+            ```java
+            stmt.executeQuery("SELECT * FROM users WHERE id = " + userId);
+            ```
+            """.trimIndent(),
+        )
+
+        val highlights = myFixture.doHighlighting()
+        assertTrue(highlights.none { it.description?.contains("SQL query") == true })
+    }
+
     fun `test already parameterized query with question mark produces no warning`() {
         myFixture.configureByText(
             "Demo.java",
@@ -133,6 +147,24 @@ class SqlConcatenationInspectionTest : BasePlatformTestCase() {
         // Kotlin string literal (opening and closing quote both present
         // on the same statement) -- not just "doesn't crash".
         assertTrue(newText.contains("\"SELECT * FROM users WHERE id = ?\""))
+    }
+
+    fun `test quick-fix keeps a table-name constant and replaces only the variable`() {
+        myFixture.configureByText(
+            "Demo.kt",
+            """
+            fun run(db: Any, whereCondition: String) {
+                db.rawQuery("SELECT MAX(freq) FROM ${'$'}WORDS_TABLE WHERE ${'$'}whereCondition", null)
+            }
+            """.trimIndent(),
+        )
+
+        myFixture.doHighlighting()
+        val fix = myFixture.getAllQuickFixes().singleOrNull { it.text.contains("whereCondition") }
+        assertNotNull("expected a quick-fix mentioning whereCondition", fix)
+        myFixture.launchAction(fix as IntentionAction)
+
+        assertTrue(myFixture.editor.document.text.contains("\"SELECT MAX(freq) FROM ${'$'}WORDS_TABLE WHERE ?\""))
     }
 
     fun `test quick-fix on python f-string replaces interpolation with placeholder and adds todo`() {

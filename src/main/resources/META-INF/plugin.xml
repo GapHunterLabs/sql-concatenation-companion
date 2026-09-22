@@ -13,33 +13,44 @@
             <li>A string literal that looks like the start of a real SQL
             statement (<code>SELECT</code>/<code>INSERT</code>/
             <code>UPDATE</code>/<code>DELETE</code>/<code>MERGE</code>/
-            <code>WITH</code>), combined via <code>+</code> concatenation
-            or string-template/f-string interpolation with a
-            <b>non-constant operand</b> -- e.g.
-            <code>"SELECT * FROM users WHERE id = " + userId</code>
+            <code>WITH</code>, or <code>CREATE</code>/<code>ALTER</code>/
+            <code>DROP</code>/<code>TRUNCATE</code>), built with
+            <code>+</code>, a Kotlin template, a Python f-string,
+            <code>.format()</code> or <code>%</code> from a value that
+            could carry injected SQL -- e.g.
+            <code>"SELECT * FROM users WHERE name = '" + name + "'"</code>
             (Java/Kotlin), <code>"SELECT * FROM users WHERE id = $userId"</code>
             (Kotlin template), <code>f"SELECT * FROM users WHERE id = {user_id}"</code>
             (Python), or <code>"... WHERE id = %s" % user_id</code>.</li>
             <li>The resulting string is used near a call that looks like
             it executes SQL: <code>Statement.executeQuery/executeUpdate/execute</code>,
-            <code>cursor.execute/executemany</code> (Python DB-API), and
-            similar conventions (<code>.query(...)</code>,
-            <code>.rawQuery(...)</code>).</li>
+            <code>cursor.execute/executemany</code> (Python DB-API),
+            <code>rawQuery</code> (Android), <code>createQuery/createNativeQuery</code>,
+            and <code>.query(...)</code>.</li>
         </ul>
         <p><b>What does NOT trigger it</b> (the anti-false-positive
         design, see README for the full worked list):</p>
         <ul>
-            <li>Two constant string literals concatenated
-            (<code>"SELECT * FROM " + "users"</code>) -- just code
-            formatting, no variable involved.</li>
+            <li>Literals and constants (<code>"SELECT * FROM " +
+            TABLE_USERS + " WHERE id = ?"</code>), numbers (an
+            <code>int</code> parameter, <code>%d</code> placeholders), and
+            locals last assigned a literal.</li>
             <li>A SQL-keyword-shaped string with no nearby execution
-            call -- a log message, a comment, a test fixture that's
-            never actually run.</li>
+            call -- a log message -- and commented-out code.</li>
             <li>A value already parameterized correctly (<code>?</code>
             placeholders with <code>PreparedStatement.setX(...)</code>,
             or a DB-API parameter tuple like
             <code>cursor.execute(query, (param,))</code>).</li>
         </ul>
+        <p>On 271 public Java, Kotlin and Python files that execute SQL, 28
+        of a random sample of 30 warnings were real queries built from a
+        variable.</p>
+        <p><b>Where it fits:</b> IntelliJ IDEA with Database Tools has a
+        built-in data-flow inspection for Java/Kotlin ("Non-safe string is
+        used as SQL"); with both on you'll see two warnings on the same
+        line. Without it -- IntelliJ IDEA without Database Tools, Android
+        Studio, PyCharm -- this plugin works on its own, with no server and
+        no build.</p>
         <p><b>Quick-fix, honest scope:</b> replaces the interpolated
         value with a <code>?</code> placeholder and adds a
         <code>TODO(sql-concat)</code> comment naming the variable that
@@ -47,8 +58,7 @@
         (<code>.setString(1, ...)</code>/<code>cursor.execute(query,
         (param,))</code>). It does <b>not</b> infer the value's real
         type or its correct positional index across a multi-placeholder
-        query -- that's flagged honestly as future work, not silently
-        pretended to be handled.</p>
+        query -- stated here rather than pretended to be handled.</p>
         <p>Deliberately narrow (not a full SAST scanner like Qodana):
         one specific pattern, near-zero configuration, tuned hard
         against false positives.</p>

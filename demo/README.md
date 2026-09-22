@@ -10,18 +10,27 @@ permitir que alguien manipule la base de datos con datos maliciosos
 1. En el panel de la izquierda, abrí el archivo
    **`OrderRepository.java`** (dentro de `src` → `main` → `java` →
    `com` → `acmecorp` → `orders`).
-2. Mirá los 3 métodos (bloques de código), uno por uno.
+2. Mirá los métodos (bloques de código), uno por uno.
+3. Después abrí **`scripts/report.py`**.
 
-## Qué deberías ver
+## Qué deberías ver en `OrderRepository.java`
 
-- En el primer bloque (`findVulnerable`): **debería aparecer un
-  aviso** en la línea que arma la consulta pegando el texto con
-  `+ userId` — porque eso es justamente el problema que detecta.
-- En el segundo bloque (`buildBaseQuery`): **no debería aparecer
-  ningún aviso** — ahí solo se está pegando texto fijo, sin ningún
-  dato que venga de otro lado, así que no hay riesgo real.
-- En el tercer bloque (`findSafe`): **no debería aparecer ningún
-  aviso** — ese código ya usa la forma segura de hacer consultas.
+- `findVulnerable`: **debería aparecer un aviso** en la línea que arma
+  la consulta pegando `+ userId`.
+- `findByStatus`: **debería aparecer un aviso** que nombra `status`
+  (no las constantes `TABLE_ORDERS` ni `KEY_STATUS` que están antes).
+- `findByStatusSafe`: **ningún aviso** — solo pega constantes y usa `?`
+  para el valor.
+- `findById`: **ningún aviso** — `orderId` es un número (`int`), no
+  puede traer texto malicioso.
+- `buildBaseQuery`: **ningún aviso** — solo pega texto fijo.
+- `findSafe`: **ningún aviso** — ya usa la forma segura.
+
+## Qué deberías ver en `scripts/report.py`
+
+- `orders_for`: **debería aparecer un aviso** (f-string con `customer`).
+- `order_count`: **ningún aviso** — `%d` solo acepta números.
+- `orders_safe`: **ningún aviso** — consulta parametrizada.
 
 ## Si algo no se ve así
 
