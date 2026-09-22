@@ -4,6 +4,7 @@ import com.intellij.codeInspection.InspectionManager
 import com.intellij.codeInspection.LocalInspectionTool
 import com.intellij.codeInspection.ProblemDescriptor
 import com.intellij.codeInspection.ProblemHighlightType
+import com.intellij.openapi.progress.ProgressManager
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.PsiElement
 import com.intellij.psi.PsiFile
@@ -30,9 +31,18 @@ class SqlConcatenationInspection : LocalInspectionTool() {
     companion object {
         /** Files larger than this are skipped -- avoids pathological regex cost on generated/minified files. */
         const val MAX_FILE_LENGTH = 500_000
+
+        /**
+         * The languages this plugin supports. Registered without a
+         * `language` filter (no per-language PSI dependency), so the file
+         * name is what keeps it out of Markdown, SQL scripts, docs and
+         * every other file type -- a README's SQL examples aren't code.
+         */
+        private val SOURCE_EXTENSIONS = setOf("java", "kt", "kts", "py")
     }
 
     override fun checkFile(file: PsiFile, manager: InspectionManager, isOnTheFly: Boolean): Array<ProblemDescriptor>? {
+        if (file.name.substringAfterLast('.', "").lowercase() !in SOURCE_EXTENSIONS) return null
         val text = file.text
         if (text.length > MAX_FILE_LENGTH) return null
 
@@ -41,6 +51,7 @@ class SqlConcatenationInspection : LocalInspectionTool() {
 
         val problems = mutableListOf<ProblemDescriptor>()
         for (match in matches) {
+            ProgressManager.checkCanceled()
             val anchor = leafElementAt(file, match.startOffset) ?: continue
             val anchorStart = anchor.textRange.startOffset
             val anchorEnd = anchorStart + anchor.textLength

@@ -1,0 +1,15 @@
+<html>
+<body>
+Reports a SQL statement built by string concatenation or interpolation with a value that could carry
+injected SQL, when the result is passed to a call that runs SQL (<code>executeQuery</code>,
+<code>rawQuery</code>, <code>createNativeQuery</code>, <code>cursor.execute</code>, ...).
+Java, Kotlin and Python files.
+<p>Example:</p>
+<pre><code>stmt.executeQuery("SELECT * FROM users WHERE name = '" + name + "'");
+cursor.execute(f"SELECT * FROM users WHERE id = {user_id}")</code></pre>
+<p>Not reported: literals, constants (<code>TABLE_USERS</code>), numbers (an <code>int</code> parameter,
+<code>%d</code> placeholders), locals last assigned a literal, and commented-out code.</p>
+<p>The quick-fix replaces the interpolated value with a <code>?</code> placeholder where it sits inside the
+string and adds a <code>TODO(sql-concat)</code> comment naming the value to bind as a real parameter.</p>
+</body>
+</html>
