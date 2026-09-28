@@ -7,6 +7,12 @@ toward parameterization. Deliberately narrow (not a full SAST scanner
 like Qodana): one specific pattern, no configuration, tuned against false
 positives on real code.
 
+![SQL String Concatenation Companion: Flags SQL built by string concatenation before it ships: Java, Kotlin and Python](docs/media/hero.gif)
+
+Each feature on its own:
+[String-built SQL](docs/media/01-concatenated-sql.gif) ·
+[Only risky queries](docs/media/02-parameterized-ok.gif)
+
 ## Where it fits
 
 - **IntelliJ IDEA with Database Tools** (Ultimate) already has a built-in
